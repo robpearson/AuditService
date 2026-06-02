@@ -1,0 +1,10 @@
+image:
+  repository: ghcr.io/robpearson/auditservice
+  pullPolicy: Always
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+replicaCount: 1
