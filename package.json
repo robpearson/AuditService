@@ -1,0 +1,26 @@
+{
+  "name": "expresshelloworld",
+  "version": "1.0.0",
+  "description": "Express Hello World",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OctopusSolutionsEngineering/ExpressHelloWorld.git"
+  },
+  "author": "Rob Pearson",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/OctopusSolutionsEngineering/ExpressHelloWorld/issues"
+  },
+  "homepage": "https://github.com/OctopusSolutionsEngineering/ExpressHelloWorld#readme",
+  "dependencies": {
+    "dd-trace": "^5.53.0",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
