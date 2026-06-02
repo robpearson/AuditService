@@ -1,0 +1,78 @@
+step "production-approval" {
+    name = "Production approval"
+
+    action {
+        action_type = "Octopus.Manual"
+        environments = ["production"]
+        properties = {
+            Octopus.Action.Manual.BlockConcurrentDeployments = "False"
+            Octopus.Action.Manual.Instructions = "Has this change been approved? "
+            Octopus.Action.Manual.ResponsibleTeamIds = "global/everyone"
+        }
+    }
+}
+
+step "update-database" {
+    name = "Update database"
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                echo 'Update database ... '
+                
+                # {todo-add logic}
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool = "hosted-ubuntu"
+    }
+}
+
+step "update-argo-cd-application-image-tags" {
+    name = "Update Argo CD Application Image Tags"
+
+    action {
+        action_type = "Octopus.ArgoCDUpdateImageTags"
+        properties = {
+            Octopus.Action.ArgoCD.CommitMessageSummary = "Octopus Deploy updated image versions"
+            Octopus.Action.ArgoCD.CommitMethod = "DirectCommit"
+            Octopus.Action.ArgoCD.StepVerification.Method = "ArgoCDApplicationHealthy"
+            Octopus.Action.ArgoCD.StepVerification.Timeout = "180"
+            Octopus.Action.ArgoCD.Sync.Mode = "AllEnvironments"
+        }
+        worker_pool = "hosted-ubuntu"
+
+        packages "robpearson_auditservice" {
+            acquisition_location = "NotAcquired"
+            feed = "github-container-registry"
+            package_id = "ghcr.io/robpearson/auditservice"
+            properties = {
+                Extract = "False"
+                HelmReplacementPath = "image.tag"
+                Purpose = "DockerImageReference"
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
+
+step "notify-team" {
+    name = "Notify team"
+
+    action {
+        properties = {
+            Octopus.Action.Template.Id = "ActionTemplates-361"
+            Octopus.Action.Template.Version = "15"
+            ssn_Channel = "#{Slack.Notification.Channel}"
+            ssn_Color = "good"
+            ssn_HookUrl = "#{Slack.Notification.Webhook}"
+            ssn_IconUrl = "https://octopus.com/content/resources/favicon.png"
+            ssn_Title = ":rocket: #{Octopus.Project.Name} release v#{Octopus.Release.Number} deployed #{Octopus.Environment.Name}}"
+            ssn_Username = "Octopus Deploy"
+        }
+        worker_pool = "hosted-ubuntu"
+    }
+}
