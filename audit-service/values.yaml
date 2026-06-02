@@ -1,7 +1,7 @@
 image:
   repository: ghcr.io/robpearson/auditservice
   pullPolicy: Always
-  tag: "2025.6.1.703"
+  tag: "2025.6.1.708"
 
 service:
   type: ClusterIP
