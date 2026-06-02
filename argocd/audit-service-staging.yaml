@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/robpearson/AuditService
     targetRevision: HEAD
-    path: charts/audit-service
+    path: audit-service
     helm:
       releaseName: audit-service
       valueFiles:
