@@ -8,6 +8,7 @@ step "production-approval" {
             Octopus.Action.Manual.BlockConcurrentDeployments = "False"
             Octopus.Action.Manual.Instructions = "Has this change been approved? "
             Octopus.Action.Manual.ResponsibleTeamIds = "global/everyone"
+            Octopus.Action.RunOnServer = "false"
         }
     }
 }
@@ -22,6 +23,8 @@ step "update-database" {
                 echo 'Update database ... '
                 
                 # {todo-add logic}
+                
+                # This is a change. 
                 EOT
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "Bash"
