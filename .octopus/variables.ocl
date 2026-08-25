@@ -1,3 +1,21 @@
 variable "Slack.Notification.Channel" {
     value "production-notifications" {}
 }
+
+variable "ArgoCD.Server.Url" {
+    value "https://argocd.pexa-demo.internal" {
+        description = "Base URL of the ArgoCD server used for CLI operations against this Application."
+    }
+}
+
+variable "ArgoCD.Application.Name" {
+    value "audit-service" {
+        description = "Name of the ArgoCD Application resource for Audit Service."
+    }
+}
+
+variable "ArgoCD.Project.Name" {
+    value "pexa-platform" {
+        description = "ArgoCD project this Application belongs to."
+    }
+}
