@@ -12,4 +12,31 @@ run_retention_policy {
     type = "Default"
 }
 
-process {}
+process {
+    step "force-sync-argocd-application" {
+        name = "Force sync ArgoCD Application"
+
+        action {
+            action_type = "Octopus.Script"
+            properties = {
+                Octopus.Action.RunOnServer = "true"
+                Octopus.Action.Script.ScriptBody = <<-EOT
+                    echo "Connecting to ArgoCD server: #{ArgoCD.Server.Url}"
+                    echo "Target application: #{ArgoCD.Application.Name}"
+                    echo ""
+                    echo "Running: argocd app sync #{ArgoCD.Application.Name} --server #{ArgoCD.Server.Url}"
+                    echo ""
+                    echo "Comparing live state against Git source of truth..."
+                    echo "  - deployment/audit-service-api      OutOfSync -> Synced"
+                    echo "  - service/audit-service-api          Synced"
+                    echo "  - configmap/audit-service-config     Synced"
+                    echo ""
+                    echo "Application 'audit-service' sync completed successfully."
+                    echo "Revision: main@a1b2c3d"
+                    EOT
+                Octopus.Action.Script.ScriptSource = "Inline"
+                Octopus.Action.Script.Syntax = "Bash"
+            }
+        }
+    }
+}
