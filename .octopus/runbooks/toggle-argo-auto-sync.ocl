@@ -2,7 +2,7 @@ name = "Toggle Argo Auto-Sync"
 cancel_queued_tasks = true
 cancel_running_tasks = true
 default_guided_failure_mode = "EnvironmentDefault"
-description = ""
+description = "Toggles the ArgoCD Application between automated and manual sync policy. Use to pause auto-sync during a maintenance window, then re-enable it afterwards."
 
 connectivity_policy {
     allow_deployments_to_no_targets = true
