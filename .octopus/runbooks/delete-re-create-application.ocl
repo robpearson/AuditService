@@ -12,4 +12,53 @@ run_retention_policy {
     type = "Default"
 }
 
-process {}
+process {
+    step "delete-argocd-application" {
+        name = "Delete ArgoCD Application"
+
+        action {
+            action_type = "Octopus.Script"
+            properties = {
+                Octopus.Action.RunOnServer = "true"
+                Octopus.Action.Script.ScriptBody = <<-EOT
+                    echo "Running: argocd app delete #{ArgoCD.Application.Name} --server #{ArgoCD.Server.Url} --cascade"
+                    echo ""
+                    echo "Removing Application resource 'audit-service' from ArgoCD..."
+                    echo "Waiting for cascade deletion of managed resources..."
+                    echo "  - deployment/audit-service-api      deleted"
+                    echo "  - service/audit-service-api          deleted"
+                    echo "  - configmap/audit-service-config     deleted"
+                    echo ""
+                    echo "Application 'audit-service' deleted successfully."
+                    EOT
+                Octopus.Action.Script.ScriptSource = "Inline"
+                Octopus.Action.Script.Syntax = "Bash"
+            }
+        }
+    }
+
+    step "re-create-argocd-application" {
+        name = "Re-create ArgoCD Application"
+        start_trigger = "StartWithPrevious"
+
+        action {
+            action_type = "Octopus.Script"
+            properties = {
+                Octopus.Action.RunOnServer = "true"
+                Octopus.Action.Script.ScriptBody = <<-EOT
+                    echo "Running: argocd app create #{ArgoCD.Application.Name} --project #{ArgoCD.Project.Name} --repo https://github.com/robpearson/AuditService.git --path k8s --dest-server https://kubernetes.default.svc --server #{ArgoCD.Server.Url}"
+                    echo ""
+                    echo "Registering Application 'audit-service' in project '#{ArgoCD.Project.Name}'..."
+                    echo "Triggering initial sync from Git source of truth..."
+                    echo "  - deployment/audit-service-api      created"
+                    echo "  - service/audit-service-api          created"
+                    echo "  - configmap/audit-service-config     created"
+                    echo ""
+                    echo "Application 'audit-service' re-created and synced successfully."
+                    EOT
+                Octopus.Action.Script.ScriptSource = "Inline"
+                Octopus.Action.Script.Syntax = "Bash"
+            }
+        }
+    }
+}
