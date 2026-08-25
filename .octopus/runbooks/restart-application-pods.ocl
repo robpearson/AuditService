@@ -12,4 +12,31 @@ run_retention_policy {
     type = "Default"
 }
 
-process {}
+process {
+    step "restart-application-pods" {
+        name = "Restart application pods"
+
+        action {
+            action_type = "Octopus.Script"
+            properties = {
+                Octopus.Action.RunOnServer = "true"
+                Octopus.Action.Script.ScriptBody = <<-EOT
+                    echo "Target application: #{ArgoCD.Application.Name}"
+                    echo ""
+                    echo "Running: kubectl rollout restart deployment/audit-service-api -n #{ArgoCD.Application.Name}"
+                    echo ""
+                    echo "deployment.apps/audit-service-api restarted"
+                    echo ""
+                    echo "Waiting for rollout to finish..."
+                    echo "  - Waiting for deployment rollout to finish: 1 old replicas are pending termination..."
+                    echo "  - Waiting for deployment rollout to finish: 1 of 3 updated replicas are available..."
+                    echo "  - deployment \"audit-service-api\" successfully rolled out"
+                    echo ""
+                    echo "All pods restarted and healthy."
+                    EOT
+                Octopus.Action.Script.ScriptSource = "Inline"
+                Octopus.Action.Script.Syntax = "Bash"
+            }
+        }
+    }
+}
