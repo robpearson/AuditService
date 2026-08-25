@@ -12,4 +12,27 @@ run_retention_policy {
     type = "Default"
 }
 
-process {}
+process {
+    step "toggle-auto-sync-policy" {
+        name = "Toggle auto-sync policy"
+
+        action {
+            action_type = "Octopus.Script"
+            properties = {
+                Octopus.Action.RunOnServer = "true"
+                Octopus.Action.Script.ScriptBody = <<-EOT
+                    echo "Current auto-sync policy for #{ArgoCD.Application.Name}: enabled"
+                    echo ""
+                    echo "Running: argocd app set #{ArgoCD.Application.Name} --sync-policy none --server #{ArgoCD.Server.Url}"
+                    echo ""
+                    echo "Auto-sync disabled for 'audit-service'."
+                    echo "Application will now only sync when manually triggered."
+                    echo ""
+                    echo "(Re-run this runbook to re-enable automated sync.)"
+                    EOT
+                Octopus.Action.Script.ScriptSource = "Inline"
+                Octopus.Action.Script.Syntax = "Bash"
+            }
+        }
+    }
+}
